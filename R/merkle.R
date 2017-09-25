@@ -22,57 +22,60 @@ merkle_tree <- function(hash = "sha256") {
 ## with the empty tree.
 R6_merkle_tree <- R6::R6Class(
   "merkle_tree",
-  public = list(
+
+  private = list(
     hash = NULL,
     hash_name = NULL,
     leaves = list(),
-    tree = NULL,
+    tree = NULL
+  ),
 
+  public = list(
     initialize = function(hash) {
       assert_scalar_character(hash)
-      self$hash_name <- hash
-      self$hash <- hash_function(hash)
+      private$hash_name <- hash
+      private$hash <- hash_function(hash)
     },
 
     add_leaf = function(hash) {
-      self$leaves <- c(self$leaves, list(hash))
-      invisible(length(self$leaves))
+      private$leaves <- c(private$leaves, list(hash))
+      invisible(length(private$leaves))
     },
 
     leaf = function(index) {
-      self$leaves[[index]]
+      private$leaves[[index]]
     },
 
     length = function() {
-      length(self$leaves)
+      length(private$leaves)
     },
 
     height = function() {
-      ceiling(log2(length(self$leaves)))
+      ceiling(log2(length(private$leaves)))
     },
 
     root = function() {
-      self$tree[[length(self$tree)]][[1L]]
+      private$tree[[length(private$tree)]][[1L]]
     },
 
     compute = function() {
-      self$tree <- compute_tree(self$leaves, self$hash)
+      private$tree <- compute_tree(private$leaves, private$hash)
     },
 
     proof = function(index) {
-      merkle_proof(index, self$tree)
+      merkle_proof(index, private$tree)
     },
 
     validate = function(proof, leaf, root = NULL) {
-      leaf <- as_hash(leaf, self$hash_name)
-      root <- as_hash(root %||% self$root(), self$hash_name)
-      merkle_validate(proof, leaf, root, self$hash)
+      leaf <- as_hash(leaf, private$hash_name)
+      root <- as_hash(root %||% self$root(), private$hash_name)
+      merkle_validate(proof, leaf, root, private$hash)
     },
 
     ## This is going to end up getting changed around a bit as we
     ## support serialisation.
     digest_string = function(x) {
-      hash_raw(charToRaw(x), self$hash)
+      hash_raw(charToRaw(x), private$hash)
     }
   ))
 

@@ -16,10 +16,12 @@ test_that("proof-of-concept", {
   expect_equal(pr$root, tr$root())
   expect_equal(length(pr$chain), 3L)
   expect_equal(names(pr$chain), rep("right", 3L))
+
+  tree <- environment(tr$leaf)$private$tree
   expect_equal(pr$chain,
-               list(right = tr$tree[[1]][[2]],
-                    right = tr$tree[[2]][[2]],
-                    right = tr$tree[[3]][[2]]))
+               list(right = tree[[1]][[2]],
+                    right = tree[[2]][[2]],
+                    right = tree[[3]][[2]]))
   expect_true(tr$validate(pr, tr$leaf(1), tr$root()))
   expect_false(tr$validate(pr, tr$leaf(2), tr$root()))
 })
