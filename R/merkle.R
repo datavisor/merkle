@@ -23,13 +23,6 @@ merkle_tree <- function(hash = "sha256") {
 R6_merkle_tree <- R6::R6Class(
   "merkle_tree",
 
-  private = list(
-    hash = NULL,
-    hash_name = NULL,
-    leaves = list(),
-    tree = NULL
-  ),
-
   public = list(
     initialize = function(hash) {
       assert_scalar_character(hash)
@@ -38,7 +31,13 @@ R6_merkle_tree <- R6::R6Class(
     },
 
     add_leaf = function(hash) {
-      private$leaves <- c(private$leaves, list(hash))
+      assert_is(hash, "hash")
+      self$append(hash)
+    },
+
+    append = function(x) {
+      private$leaves <- c(private$leaves, as_hash_list(x))
+      private$compute()
       invisible(length(private$leaves))
     },
 
@@ -51,15 +50,11 @@ R6_merkle_tree <- R6::R6Class(
     },
 
     height = function() {
-      ceiling(log2(length(private$leaves)))
+      length(private$tree)
     },
 
     root = function() {
       private$tree[[length(private$tree)]][[1L]]
-    },
-
-    compute = function() {
-      private$tree <- compute_tree(private$leaves, private$hash)
     },
 
     proof = function(index) {
@@ -77,7 +72,19 @@ R6_merkle_tree <- R6::R6Class(
     digest_string = function(x) {
       hash_raw(charToRaw(x), private$hash)
     }
+  ),
+
+  private = list(
+    hash = NULL,
+    hash_name = NULL,
+    leaves = list(),
+    tree = NULL,
+
+    compute = function() {
+      private$tree <- compute_tree(private$leaves, private$hash)
+    }
   ))
+
 
 ## This can be done more efficiently if we have already done the
 ## calculation already; if we are appending only then all we need to

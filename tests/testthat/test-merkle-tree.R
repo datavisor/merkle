@@ -3,11 +3,8 @@ context("merkle_tree")
 test_that("proof-of-concept", {
   tr <- merkle_tree()
 
-  for (l in letters[1:6]) {
-    tr$add_leaf(tr$digest_string(l))
-  }
-
-  tr$compute()
+  dat <- lapply(letters[1:6], tr$digest_string)
+  tr$append(dat)
 
   pr <- tr$proof(1)
   expect_is(pr, "merkle_proof")

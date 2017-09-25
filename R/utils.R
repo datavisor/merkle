@@ -1,3 +1,6 @@
+vlapply <- function(X, FUN, ...) {
+  vapply(X, FUN, logical(1), ...)
+}
 vcapply <- function(X, FUN, ...) {
   vapply(X, FUN, character(1), ...)
 }
@@ -30,4 +33,20 @@ as_hash <- function(x, algorithm = "generic") {
     class(x) <- c("hash", algorithm)
   }
   x
+}
+
+as_hash_list <- function(x) {
+  if (is_hash(x)) {
+    x <- list(x)
+  } else {
+    ok <- vlapply(x, is_hash)
+    if (!all(ok)) {
+      stop("all elements of 'x' must be hash")
+    }
+  }
+  x
+}
+
+is_hash <- function(x) {
+  inherits(x, "hash")
 }
