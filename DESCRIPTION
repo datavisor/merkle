@@ -1,0 +1,17 @@
+Package: merkle
+Title: 'Merkle' Trees in R
+Version: 0.1.0
+Description: Compute and verify 'Merkle' trees.  These are
+    "authenticated data structures" - a generalisation of a hash list
+    to a tree.  They are useful as a building block for verifiable
+    data structures such as auditable append only logs.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Author: Rich FitzJohn
+Maintainer: Rich FitzJohn <rich.fitzjohn@gmail.com>
+Imports:
+    R6,
+    openssl
+Suggests:
+    testthat

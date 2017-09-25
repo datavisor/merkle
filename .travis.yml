@@ -1,0 +1,12 @@
+language: r
+cache: packages
+sudo: false
+
+after_success:
+  - Rscript -e 'covr::codecov()'
+
+addons:
+  apt:
+    packages:
+      - libcurl4-openssl-dev
+      - libssl-dev
