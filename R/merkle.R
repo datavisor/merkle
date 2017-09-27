@@ -36,9 +36,10 @@ R6_merkle_tree <- R6::R6Class(
     },
 
     append = function(x) {
-      private$leaves <- c(private$leaves, as_hash_list(x))
+      h <- as_hash_list(x)
+      private$leaves <- c(private$leaves, h)
       private$compute()
-      invisible(length(private$leaves))
+      invisible(h)
     },
 
     leaf = function(index) {
@@ -57,14 +58,18 @@ R6_merkle_tree <- R6::R6Class(
       private$tree[[length(private$tree)]][[1L]]
     },
 
-    proof = function(index) {
-      merkle_proof(index, private$tree)
+    proof_audit = function(index) {
+      merkle_proof_audit(index, private$tree)
     },
 
-    validate = function(proof, leaf, root = NULL) {
+    validate_audit = function(proof, leaf, root = NULL) {
       leaf <- as_hash(leaf, private$hash_name)
       root <- as_hash(root %||% self$root(), private$hash_name)
-      merkle_validate(proof, leaf, root, private$hash)
+      merkle_validate_audit(proof, leaf, root, private$hash)
+    },
+
+    proof_consistency = function(n) {
+      merkle_proof_consistency(n, private$tree)
     },
 
     ## This is going to end up getting changed around a bit as we
@@ -124,7 +129,7 @@ merkel_index <- function(i, nlevels) {
   floor((i - 1L) / 2^(seq_len(nlevels) - 1L)) + 1L
 }
 
-merkle_proof <- function(index, tree) {
+merkle_proof_audit <- function(index, tree) {
   len <- lengths(tree)
   nlevels <- length(tree)
   idx <- merkel_index(index, nlevels - 1L)
@@ -132,9 +137,9 @@ merkle_proof <- function(index, tree) {
   sibling_index <- ifelse(is_right, idx - 1L, idx + 1L)
   sibling_pos <- ifelse(is_right, "left", "right")
   include <- !(!is_right & idx == lengths(tree)[seq_along(idx)])
-  proof <- Map(function(i, j) tree[[i]][[j]],
-               seq_along(sibling_index)[include],
-               sibling_index[include])
+  proof <- tree_pick(seq_along(sibling_index)[include],
+                     sibling_index[include],
+                     tree)
   names(proof) <- sibling_pos[include]
 
   ret <- list(chain = proof,
@@ -144,7 +149,7 @@ merkle_proof <- function(index, tree) {
   ret
 }
 
-merkle_validate <- function(proof, leaf_hash, root_hash, hash) {
+merkle_validate_audit <- function(proof, leaf_hash, root_hash, hash) {
   chain <- proof$chain
 
   leaf_hash <- as_hash(leaf_hash)
@@ -180,4 +185,73 @@ print.merkle_proof <- function(x, ..., n = getOption("width") - 12) {
   cat(sprintf("  - %s (%s)\n", vcapply(x$chain, f), names(x$chain)),
       sep = "")
   invisible(x)
+}
+
+## Number of children at a point in the tree where we have:
+##
+## * n_leaves - number of leaves in the entire tree
+##
+## * level - the level of the tree (with 1 being the leaves and the
+##   level 'k' having up to 2^(k - 1) children)
+##
+## * index - the index within this level
+merkle_n_children <- function(n_leaves, level, index) {
+  if (length(index) > 1L && length(level) == 1L) {
+    level <- rep_len(level, length(index))
+  }
+  n <- 2^(level - 1)
+  m <- n * index
+  i <- m > n_leaves
+  if (any(i)) {
+    n[i] <- n_leaves - (m[i] - n[i])
+    n[n < 0] <- 0
+  }
+  n
+}
+
+tree_pick <- function(level, index, tree) {
+  Map(function(i, j) tree[[i]][[j]], level, index)
+}
+
+## So 'm' is the number of leaves in the *subtree* and n_leaves is the
+## number of leaves in our real tree
+consistency_proof_nodes <- function(m, n_leaves) {
+  if (m > n_leaves) {
+    stop("too many")
+  }
+  level <- floor(log2(m)) + 1L
+  index <- 1L
+  k <- merkle_n_children(n_leaves, level, index)
+
+  proof_level <- level
+  proof_index <- 1L
+
+  rem <- m - k
+
+  if (rem > 0) {
+    index <- index + 1L
+    repeat {
+      k_sibling <- merkle_n_children(n_leaves, level, index)
+
+      if (rem == k_sibling) {
+        proof_level <- c(proof_level, level)
+        proof_index <- c(proof_index, index)
+        break
+      } else if (rem < k_sibling) {
+        level <- level - 1L
+        index <- (index - 1L) * 2 + 1L # left daughter
+        next
+      } else { # rem > k_sibling
+        proof_level <- c(proof_level, level)
+        proof_index <- c(proof_index, index)
+        k <- k + k_sibling
+        rem <- m - k
+        if (index %% 2 == 0) {
+          stop("I don't think this is possible")
+        }
+        index <- index + 1L
+      }
+    }
+  }
+  list(level = proof_level, index = proof_index)
 }

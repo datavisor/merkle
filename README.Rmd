@@ -12,3 +12,5 @@ knitr::opts_chunk$set(error = FALSE)
 ```
 
 Merkle trees in R
+
+Currently I am just trying to get the implementation working; I'll come past and deal with the (terrible) naming shortly after that
