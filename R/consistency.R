@@ -20,8 +20,9 @@ merkle_consistency_proof <- function(n, tree, hash_name) {
   chain <- tree_pick(nodes[[1L]], nodes[[2L]], tree)
   ret <- list(chain = chain,
               root = last(tree)[[1L]],
-              hash_name = hash_name)
-  class(ret) <- "merkle_consistency_proof"
+              hash_name = hash_name,
+              type = "consistency")
+  class(ret) <- "merkle_proof"
   ret
 }
 
@@ -78,9 +79,4 @@ merkle_consistency_test <- function(proof, root_hash, hasher, error = FALSE) {
     stop("Hashes do not match")
   }
   same
-}
-
-##' @export
-print.merkle_consistency_proof <- function(x, ...) {
-  print_proof(x, "consistency", ...)
 }

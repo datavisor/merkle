@@ -32,24 +32,25 @@ test_that("audit proof", {
   tr <- merkle_tree()
   tr$extend(as.list(as.raw(0:5)))
 
-  pr <- tr$proof_audit(1)
-  expect_is(pr, "merkle_audit_proof")
+  pr <- tr$proof_audit(2)
+  expect_is(pr, "merkle_proof")
+  expect_equal(pr$type, "audit")
 
-  expect_true(setequal(names(pr),
-                       c("index", "hash_name", "leaf", "root", "chain")))
-  expect_equal(pr$leaf, tr$leaf(1))
+  expect_true(setequal(
+    names(pr), c("index", "hash_name", "leaf", "root", "chain", "type")))
+  expect_equal(pr$leaf, tr$leaf(2))
   expect_equal(pr$root, tr$root())
   expect_equal(length(pr$chain), 3L)
-  expect_equal(names(pr$chain), rep("right", 3L))
+  expect_equal(names(pr$chain), c("left", "right", "right"))
 
   tree <- tr$tree()
   expect_equal(pr$chain,
-               list(right = tree[[1]][[2]],
+               list(left = tree[[1]][[1]],
                     right = tree[[2]][[2]],
                     right = tree[[3]][[2]]))
 
   expect_true(merkle_audit_proof_check(pr))
-  pr$leaf <- tr$leaf(2)
+  pr$leaf <- tr$leaf(1)
   expect_false(merkle_audit_proof_check(pr))
 })
 
@@ -107,7 +108,8 @@ test_that("print audit proof", {
 test_that("print consistency proof", {
   tr <- merkle_tree()$extend(as.list(as.raw(0:7)))
   pr <- tr$proof_consistency(3)
-  expect_is(pr, "merkle_consistency_proof")
+  expect_is(pr, "merkle_proof")
+  expect_equal(pr$type, "consistency")
   expected <- c("merkle consistency proof:",
                 "  root: ef:7f:49:b6:20:f6:c7:ea:9b:...",
                 "  hash_name: sha256",

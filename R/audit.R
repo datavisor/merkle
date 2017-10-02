@@ -16,8 +16,9 @@ merkle_audit_proof <- function(index, tree, hash_name) {
               hash_name = hash_name,
               leaf = tree[[1L]][[index]],
               root = last(tree)[[1L]],
-              index = index)
-  class(ret) <- "merkle_audit_proof"
+              index = index,
+              type = "audit")
+  class(ret) <- "merkle_proof"
   ret
 }
 
@@ -52,9 +53,4 @@ merkle_audit_test <- function(leaf_hash, proof, root_hash, hasher,
 merkle_audit_proof_check <- function(proof) {
   hasher <- merkle_hasher(proof$hash_name)
   merkle_audit_test(proof$leaf, proof, proof$root, hasher)
-}
-
-##' @export
-print.merkle_audit_proof <- function(x, ...) {
-  print_proof(x, "audit", ...)
 }

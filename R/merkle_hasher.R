@@ -87,7 +87,10 @@ format_hash <- function(h, w) {
   s
 }
 
-format_proof <- function(x, type, n = getOption("width") - 13) {
+format_merkle_proof <- function(x, n = getOption("width") - 13) {
+  type <- x$type
+  x$type <- NULL
+
   if (is.null(names(x$chain))) {
     chain <- paste("  -", vcapply(x$chain, format_hash, n))
   } else {
@@ -104,7 +107,8 @@ format_proof <- function(x, type, n = getOption("width") - 13) {
     chain)
 }
 
-print_proof <- function(x, ...) {
-  cat(paste0(format_proof(x, ...), "\n", collapse = ""))
+##' @export
+print.merkle_proof <- function(x, ...) {
+  cat(paste0(format_merkle_proof(x, ...), "\n", collapse = ""))
   invisible(x)
 }
