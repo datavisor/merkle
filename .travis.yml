@@ -10,3 +10,6 @@ addons:
     packages:
       - libcurl4-openssl-dev
       - libssl-dev
+
+r_packages:
+  - covr
