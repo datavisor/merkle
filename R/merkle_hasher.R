@@ -46,8 +46,12 @@ merkle_hasher <- function(hash) {
     if (is_odd) {
       n <- n - 1L
     }
-    i <- seq.int(1L, n, by = 2L)
-    res <- Map(hash_node, x[i], x[i + 1L])
+    if (n > 0) {
+      i <- seq.int(1L, n, by = 2L)
+      res <- Map(hash_node, x[i], x[i + 1L])
+    } else {
+      res <- list()
+    }
     if (is_odd) {
       res <- c(res, x[n + 1L])
     }

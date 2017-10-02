@@ -13,8 +13,8 @@ merkle_consistency_proof <- function(n, tree, hash_name) {
   ## out that corner case...
   n_leaves_ours <- length(tree[[1L]])
   if (n > n_leaves_ours) {
-    stop(sprintf("Requested proof for sizes beyond current tree: %d > %d"),
-         n, self$length())
+    stop(sprintf("Requested proof for sizes beyond current tree: %d > %d",
+                 n, n_leaves_ours))
   }
   nodes <- merkle_consistency_proof_nodes(n, n_leaves_ours)
   chain <- tree_pick(nodes[[1L]], nodes[[2L]], tree)

@@ -24,7 +24,7 @@ merkle_audit_proof <- function(index, tree, hash_name) {
 
 merkle_audit_compute_root <- function(leaf_hash, chain, hasher) {
   if (length(chain) == 0L) {
-    browser()
+    leaf_hash
   } else {
     left <- names(chain) == "left"
     chain_hash <- leaf_hash

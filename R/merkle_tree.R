@@ -58,6 +58,7 @@ R6_merkle_tree <- R6::R6Class(
       leaf <- private$.hasher$hash_leaf(data)
       private$.leaves <- c(private$.leaves, list(leaf))
       private$.tree <- NULL
+      invisible(self)
     },
 
     extend = function(data) {
@@ -76,6 +77,7 @@ R6_merkle_tree <- R6::R6Class(
 
     compute = function() {
       private$.tree <- private$.hasher$hash_tree(private$.leaves)
+      invisible(self)
     },
 
     hasher = function() {

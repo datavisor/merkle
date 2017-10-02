@@ -120,3 +120,19 @@ test_that("print consistency proof", {
   recv <- capture.output(print(pr, 30))
   expect_equal(recv, expected)
 })
+
+test_that("out of bounds consistency proof", {
+  tr <- merkle_tree()$extend(as.list(as.raw(0:7)))
+  expect_error(tr$proof_consistency(16),
+               "Requested proof for sizes beyond current tree: 16 > 8",
+               fixed = TRUE)
+})
+
+## TODO: I'm not sure that this is correct and will have to check the
+## RFC carefully.  In particular I don't see how this interacts with
+## the pre-image attack prevention.
+test_that("audit small tree", {
+  tr <- merkle_tree()$append(as.raw(0))$compute()
+  pr <- tr$proof_audit(1)
+  expect_true(merkle_audit_proof_check(pr))
+})
