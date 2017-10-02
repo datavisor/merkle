@@ -83,6 +83,8 @@ test_that("consistency proof", {
   expect_true(merkle_consistency_test(pr7, tr7$root(), hasher))
 
   expect_false(merkle_consistency_test(pr7, tr3$root(), hasher))
+  expect_error(merkle_consistency_test(pr7, tr3$root(), hasher, error = TRUE),
+               "Hashes do not match")
 })
 
 test_that("print audit proof", {

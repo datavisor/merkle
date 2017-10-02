@@ -74,9 +74,5 @@ merkle_consistency_compute_root <- function(chain, hasher) {
 
 merkle_consistency_test <- function(proof, root_hash, hasher, error = FALSE) {
   root_hash_computed <- merkle_consistency_compute_root(proof$chain, hasher)
-  same <- hasher$is_equal(root_hash_computed, root_hash)
-  if (error && !same) {
-    stop("Hashes do not match")
-  }
-  same
+  merkle_proof_test(proof, root_hash, root_hash_computed, hasher, error)
 }

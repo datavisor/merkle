@@ -43,11 +43,7 @@ merkle_audit_test <- function(leaf_hash, proof, root_hash, hasher,
                               error = FALSE) {
   root_hash_computed <-
     merkle_audit_compute_root(leaf_hash, proof$chain, hasher)
-  same <- hasher$is_equal(root_hash_computed, root_hash)
-  if (error && !same) {
-    stop("Hashes do not match")
-  }
-  same
+  merkle_proof_test(proof, root_hash, root_hash_computed, hasher, error)
 }
 
 merkle_audit_proof_check <- function(proof) {

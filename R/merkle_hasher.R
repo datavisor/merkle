@@ -112,3 +112,12 @@ print.merkle_proof <- function(x, ...) {
   cat(paste0(format_merkle_proof(x, ...), "\n", collapse = ""))
   invisible(x)
 }
+
+merkle_proof_test <- function(proof, root_hash, root_hash_computed,
+                              hasher, error) {
+  same <- hasher$is_equal(root_hash_computed, root_hash)
+  if (error && !same) {
+    stop("Hashes do not match")
+  }
+  same
+}
