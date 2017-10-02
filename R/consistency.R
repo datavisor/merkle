@@ -54,9 +54,6 @@ merkle_consistency_proof_nodes <- function(m, n_leaves_ours) {
         proof_level <- c(proof_level, level)
         proof_index <- c(proof_index, index)
         rem <- rem - k_sibling
-        if (index %% 2 == 0) {
-          stop("I don't think this is possible")
-        }
         index <- index + 1L
       }
     }
