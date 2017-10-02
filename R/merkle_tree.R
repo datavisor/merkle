@@ -65,6 +65,7 @@ R6_merkle_tree <- R6::R6Class(
       leaves <- lapply(data, private$.hasher$hash_leaf)
       private$.leaves <- c(private$.leaves, leaves)
       private$.tree <- NULL
+      invisible(self)
     },
 
     extended = function(data) {

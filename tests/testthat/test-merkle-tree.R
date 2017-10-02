@@ -84,7 +84,7 @@ test_that("consistency proof", {
   expect_false(merkle_consistency_test(pr7, tr3$root(), hasher))
 })
 
-test_that("print", {
+test_that("print audit proof", {
   mt <- merkle_tree()
   hasher <- mt$hasher()
 
@@ -100,6 +100,19 @@ test_that("print", {
                 "  root: a2:0b:f9:a7:cc:2d:c8:a0:8f:...",
                 "  index: 1", "  chain:",
                 "  - b4:13:f4:7d:13:ee:2f:e6:c8:... (right)")
+  recv <- capture.output(print(pr, 30))
+  expect_equal(recv, expected)
+})
+
+test_that("print consistency proof", {
+  tr <- merkle_tree()$extend(as.list(as.raw(0:7)))
+  pr <- tr$proof_consistency(3)
+  expect_is(pr, "merkle_consistency_proof")
+  expected <- c("merkle consistency proof:",
+                "  root: ef:7f:49:b6:20:f6:c7:ea:9b:...",
+                "  hash_name: sha256",
+                "  chain:", "  - a2:0b:f9:a7:cc:2d:c8:a0:8f:...",
+                "  - fc:f0:a6:c7:00:dd:13:e2:74:...")
   recv <- capture.output(print(pr, 30))
   expect_equal(recv, expected)
 })
