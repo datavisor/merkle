@@ -54,6 +54,8 @@ merkle_hasher <- function(hash) {
     res
   }
 
+  ## TODO: there is probably more type assertions here than are really
+  ## required given that this is used at a fairly low level.
   self <- list(
     name = function() {
       hash_name
@@ -73,7 +75,7 @@ merkle_hasher <- function(hash) {
       stopifnot(all(vlapply(leaves, is.raw)))
       hash_tree(leaves)
     },
-    is_equal = same_bytes)
+    is_equal = same_bytes_hash)
   self
 }
 

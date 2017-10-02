@@ -1,31 +1,7 @@
-## This is the same problem as with storr; if we want to hash an
-## *object* then we need to (perhaps) skip the bytes that declare R
-## version; basically digest::digest
-
-hash_object <- function(x, algorithm, skip = TRUE) {
-  ## This would be more efficient if we
-  bytes <- serialize(x, NULL)
-  if (skip) {
-    bytes <- bytes[-seq_len(14L)]
-  }
-  hash_compute(bytes, algorithm)
-}
-
-hash_function <- function(algorithm) {
-  if (is.function(algorithm)) {
-    algorithm
-  } else {
-    hash_functions[[algorithm]] %||% stop("invalid hash")
-  }
-}
-
-hash_compute <- function(x, algorithm) {
-  as.character(hash_function(algorithm)(x))
-}
-
-hash_raw <- function(x, algorithm) {
-  assert_raw(x)
-  hash_function(algorithm)(x)
+hash_function <- function(hash_name) {
+  assert_scalar_character(hash_name)
+  hash_functions[[hash_name]] %||%
+    stop(sprintf("Unknown hash function '%s'", hash_name), call. = FALSE)
 }
 
 hash_functions_get <- function() {
@@ -34,4 +10,31 @@ hash_functions_get <- function() {
   res <- lapply(algos, getExportedValue, ns = "openssl")
   names(res) <- algos
   res
+}
+
+as_hash <- function(x, hash_name = NULL) {
+  if (is.character(x)) {
+    x <- hexstr_to_raw(x)
+  } else {
+    assert_raw(x)
+  }
+  if (!inherits(x, "hash") && !is.null(hash_name)) {
+    class(x) <- c("hash", hash_name)
+  }
+  x
+}
+
+## This is needed because we can't rely on things coming in as direct
+## objects from the openssl hash functions - they may have lost
+## attributes that indicate which hash function generated them.  So
+## instead we reduce things down to their bytes (which is all we
+## really care about) and use that.
+same_bytes_hash <- function(a, b) {
+  identical(as.raw(a), as.raw(b))
+}
+
+## This could do with work, but will do for now.  It's not crazy fast
+hexstr_to_raw <- function(x) {
+  x <- gsub(":", "", x, fixed = TRUE)
+  as.raw(strtoi(strsplit(x, "(?<=..)", perl = TRUE)[[1L]], 16L))
 }
