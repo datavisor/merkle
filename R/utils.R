@@ -1,6 +1,9 @@
 vlapply <- function(X, FUN, ...) {
   vapply(X, FUN, logical(1), ...)
 }
+viapply <- function(X, FUN, ...) {
+  vapply(X, FUN, integer(1), ...)
+}
 vcapply <- function(X, FUN, ...) {
   vapply(X, FUN, character(1), ...)
 }
@@ -49,4 +52,8 @@ as_hash_list <- function(x) {
 
 is_hash <- function(x) {
   inherits(x, "hash")
+}
+
+last <- function(x) {
+  x[[length(x)]]
 }

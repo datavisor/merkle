@@ -41,3 +41,7 @@ fake_tree <- function(n, base_0 = TRUE) {
 
   compute_tree_str(pool[seq_len(n)])
 }
+
+r6_private <- function(x) {
+  environment(x$initialize)$private
+}

@@ -27,3 +27,11 @@ hash_raw <- function(x, algorithm) {
   assert_raw(x)
   hash_function(algorithm)(x)
 }
+
+hash_functions_get <- function() {
+  algos <- c("sha1", "sha224", "sha256", "sha384", "sha512",
+             "md4", "md5", "blake2b", "blake2s", "ripemd160")
+  res <- lapply(algos, getExportedValue, ns = "openssl")
+  names(res) <- algos
+  res
+}
